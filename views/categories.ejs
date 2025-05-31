@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>カテゴリ管理</title>
+  <style>
+    body { font-family: sans-serif; margin: 2em; }
+    form { margin-bottom: 1em; }
+    button { margin-left: 0.5em; }
+  </style>
+</head>
+<body>
+  <h1>カテゴリ管理</h1>
+  <form action="/categories/add" method="post">
+    <input type="text" name="name" placeholder="新しいカテゴリ" required>
+    <button type="submit">追加</button>
+  </form>
+  <ul>
+    <% categories.forEach(cat => { %>
+      <li>
+        <%= cat.name %>
+        <form action="/categories/delete/<%= cat.id %>" method="post" style="display:inline;">
+          <button type="submit">削除</button>
+        </form>
+        <form action="/categories/edit/<%= cat.id %>" method="post" style="display:inline;">
+          <input type="text" name="name" value="<%= cat.name %>" required>
+          <button type="submit">修正</button>
+        </form>
+      </li>
+    <% }) %>
+  </ul>
+  <a href="/">← タスク一覧へ</a>
+</body>
+</html>

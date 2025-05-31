@@ -14,12 +14,26 @@
   <h1>TODOリスト</h1>
   <form action="/add" method="post">
     <input type="text" name="task" placeholder="新しいタスク" required>
+    <input type="date" name="due_date" placeholder="期限日">
+    <select name="category_id">
+      <option value="">カテゴリ選択</option>
+      <% categories.forEach(cat => { %>
+        <option value="<%= cat.id %>"><%= cat.name %></option>
+      <% }) %>
+    </select>
     <button type="submit">追加</button>
+    <a href="/categories">カテゴリ管理</a>
   </form>
   <ul>
     <% todos.forEach(todo => { %>
       <li>
         <span class="<%= todo.done ? 'done' : '' %>"><%= todo.task %></span>
+        <% if (todo.due_date) { %>
+          <span>（期限: <%= todo.due_date %>）</span>
+        <% } %>
+        <% if (todo.category_id) { %>
+          <span>［カテゴリ: <%= (categories.find(c => c.id === todo.category_id) || {}).name || '' %>］</span>
+        <% } %>
         <% if (!todo.done) { %>
           <form action="/done/<%= todo.id %>" method="post" style="display:inline;">
             <button type="submit">完了</button>

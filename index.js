@@ -12,27 +12,69 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static('public'));
 
 // DB初期化
-const initSql = `CREATE TABLE IF NOT EXISTS todos (
+const initTodos = `CREATE TABLE IF NOT EXISTS todos (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   task TEXT NOT NULL,
-  done INTEGER DEFAULT 0
+  due_date TEXT,
+  category_id INTEGER,
+  done INTEGER DEFAULT 0,
+  FOREIGN KEY (category_id) REFERENCES categories(id)
 )`;
-db.run(initSql);
+const initCategories = `CREATE TABLE IF NOT EXISTS categories (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL UNIQUE
+)`;
+db.run(initCategories);
+db.run(initTodos);
 
 // 一覧表示
 app.get('/', (req, res) => {
-  db.all('SELECT * FROM todos', (err, rows) => {
+  db.all('SELECT * FROM todos', (err, todos) => {
     if (err) return res.status(500).send('DB error');
-    res.render('index', { todos: rows });
+    db.all('SELECT * FROM categories', (err, categories) => {
+      if (err) return res.status(500).send('DB error');
+      res.render('index', { todos, categories });
+    });
   });
 });
 
 // タスク追加
 app.post('/add', (req, res) => {
-  const task = req.body.task;
+  const { task, due_date, category_id } = req.body;
   if (!task) return res.redirect('/');
-  db.run('INSERT INTO todos (task) VALUES (?)', [task], err => {
+  db.run('INSERT INTO todos (task, due_date, category_id) VALUES (?, ?, ?)', [task, due_date || null, category_id || null], err => {
     res.redirect('/');
+  });
+});
+// カテゴリ一覧・管理画面
+app.get('/categories', (req, res) => {
+  db.all('SELECT * FROM categories', (err, categories) => {
+    if (err) return res.status(500).send('DB error');
+    res.render('categories', { categories });
+  });
+});
+
+// カテゴリ追加
+app.post('/categories/add', (req, res) => {
+  const name = req.body.name;
+  if (!name) return res.redirect('/categories');
+  db.run('INSERT INTO categories (name) VALUES (?)', [name], err => {
+    res.redirect('/categories');
+  });
+});
+
+// カテゴリ削除
+app.post('/categories/delete/:id', (req, res) => {
+  db.run('DELETE FROM categories WHERE id = ?', [req.params.id], err => {
+    res.redirect('/categories');
+  });
+});
+
+// カテゴリ修正
+app.post('/categories/edit/:id', (req, res) => {
+  const name = req.body.name;
+  db.run('UPDATE categories SET name = ? WHERE id = ?', [name, req.params.id], err => {
+    res.redirect('/categories');
   });
 });
 
