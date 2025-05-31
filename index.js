@@ -29,7 +29,16 @@ db.run(initTodos);
 
 // 一覧表示
 app.get('/', (req, res) => {
-  db.all('SELECT * FROM todos', (err, todos) => {
+  // カテゴリ、期限日、登録日でソート
+  const sql = `
+    SELECT t.* FROM todos t
+    LEFT JOIN categories c ON t.category_id = c.id
+    ORDER BY
+      c.name IS NULL, c.name ASC,
+      t.due_date IS NOT NULL, t.due_date ASC,
+      t.created_at ASC
+  `;
+  db.all(sql, (err, todos) => {
     if (err) return res.status(500).send('DB error');
     db.all('SELECT * FROM categories', (err, categories) => {
       if (err) return res.status(500).send('DB error');
