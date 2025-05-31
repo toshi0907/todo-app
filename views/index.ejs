@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>TODOアプリ</title>
+  <style>
+    body { font-family: sans-serif; margin: 2em; }
+    form { margin-bottom: 1em; }
+    .done { text-decoration: line-through; color: #888; }
+    button { margin-left: 0.5em; }
+  </style>
+</head>
+<body>
+  <h1>TODOリスト</h1>
+  <form action="/add" method="post">
+    <input type="text" name="task" placeholder="新しいタスク" required>
+    <button type="submit">追加</button>
+  </form>
+  <ul>
+    <% todos.forEach(todo => { %>
+      <li>
+        <span class="<%= todo.done ? 'done' : '' %>"><%= todo.task %></span>
+        <% if (!todo.done) { %>
+          <form action="/done/<%= todo.id %>" method="post" style="display:inline;">
+            <button type="submit">完了</button>
+          </form>
+        <% } %>
+        <form action="/delete/<%= todo.id %>" method="post" style="display:inline;">
+          <button type="submit">削除</button>
+        </form>
+      </li>
+    <% }) %>
+  </ul>
+</body>
+</html>
