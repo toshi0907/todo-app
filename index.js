@@ -42,7 +42,8 @@ app.get('/', (req, res) => {
 app.post('/add', (req, res) => {
   const { task, due_date, category_id } = req.body;
   if (!task) return res.redirect('/');
-  db.run('INSERT INTO todos (task, due_date, category_id) VALUES (?, ?, ?)', [task, due_date || null, category_id || null], err => {
+  const created_at = new Date().toISOString().replace('T', ' ').slice(0, 19);
+  db.run('INSERT INTO todos (task, due_date, category_id, created_at) VALUES (?, ?, ?, ?)', [task, due_date || null, category_id || null, created_at], err => {
     res.redirect('/');
   });
 });

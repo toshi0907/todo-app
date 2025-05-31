@@ -31,6 +31,9 @@
         <% if (todo.due_date) { %>
           <span>（期限: <%= todo.due_date %>）</span>
         <% } %>
+        <% if (todo.created_at) { %>
+          <span>［登録: <%= todo.created_at %>］</span>
+        <% } %>
         <% if (todo.category_id) { %>
           <span>［カテゴリ: <%= (categories.find(c => c.id === todo.category_id) || {}).name || '' %>］</span>
         <% } %>
