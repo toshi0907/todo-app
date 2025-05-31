@@ -1,10 +1,21 @@
+
+const fs = require('fs');
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const path = require('path');
 
+const DB_FILE = './todo.db';
+const MIGRATE_FILE = './migrate.sql';
+
+// DBファイルがなければ自動作成
+if (!fs.existsSync(DB_FILE)) {
+  const execSync = require('child_process').execSync;
+  execSync(`sqlite3 ${DB_FILE} < ${MIGRATE_FILE}`);
+}
+
 const app = express();
-const db = new sqlite3.Database('./todo.db');
+const db = new sqlite3.Database(DB_FILE);
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));

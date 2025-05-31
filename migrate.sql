@@ -1,7 +1,15 @@
+
+CREATE TABLE IF NOT EXISTS todos (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  task TEXT NOT NULL,
+  due_date TEXT,
+  category_id INTEGER,
+  done INTEGER DEFAULT 0,
+  created_at TEXT,
+  FOREIGN KEY (category_id) REFERENCES categories(id)
+);
+
 CREATE TABLE IF NOT EXISTS categories (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL UNIQUE
 );
-
-ALTER TABLE todos ADD COLUMN due_date TEXT;
-ALTER TABLE todos ADD COLUMN category_id INTEGER REFERENCES categories(id);
