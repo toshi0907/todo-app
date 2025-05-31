@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    # SQLite DBファイルを永続化
+    volumes:
+      - ./todo.db:/app/todo.db
