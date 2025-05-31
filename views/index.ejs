@@ -3,80 +3,107 @@
 <head>
   <meta charset="UTF-8">
   <title>TODOアプリ</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { font-family: sans-serif; margin: 2em; }
-    form { margin-bottom: 1em; }
+    body { background: #f8fafc; font-family: 'Segoe UI', 'Roboto', sans-serif; margin: 0; padding: 0; }
+    .container { max-width: 800px; margin: 2em auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 16px #0001; padding: 2em; }
+    h1 { font-weight: 700; color: #2d3748; margin-bottom: 1.5em; }
+    form { margin-bottom: 1.5em; display: flex; gap: 1em; align-items: center; }
+    input, select, button, a.btn { border-radius: 6px; }
+    input[type="text"], input[type="date"], select { border: 1px solid #cbd5e1; padding: 0.5em; }
+    button, a.btn { background: #2563eb; color: #fff; border: none; padding: 0.5em 1.2em; cursor: pointer; transition: background 0.2s; text-decoration: none; }
+    button:hover, a.btn:hover { background: #1d4ed8; }
     .done { text-decoration: line-through; color: #888; }
-    button { margin-left: 0.5em; }
-    .overdue { background: LightPink; }
+    .overdue { background: LightPink !important; }
     .category-block { margin-bottom: 2em; }
-    .category-title { font-weight: bold; font-size: 1.2em; margin-top: 1em; }
+    .category-title { font-weight: bold; font-size: 1.2em; margin-top: 1em; color: #2563eb; }
+    ul { list-style: none; padding: 0; }
+    li { background: #f1f5f9; margin-bottom: 0.5em; padding: 0.7em 1em; border-radius: 6px; display: flex; align-items: center; gap: 1em; }
+    .task-meta { font-size: 0.95em; color: #64748b; margin-left: auto; }
+    .task-actions form, .task-actions { display: inline; margin: 0; }
+    .task-actions button { background: #64748b; margin-left: 0.3em; }
+    .task-actions button:hover { background: #334155; }
+    @media (max-width: 600px) {
+      .container { padding: 1em; }
+      form { flex-direction: column; gap: 0.5em; align-items: stretch; }
+      li { flex-direction: column; align-items: flex-start; }
+    }
   </style>
 </head>
 <body>
-  <h1>TODOリスト</h1>
-  <form action="/add" method="post">
-    <input type="text" name="task" placeholder="新しいタスク" required>
-    <input type="date" name="due_date" placeholder="期限日">
-    <select name="category_id">
-      <option value="">カテゴリ選択</option>
-      <% categories.forEach(cat => { %>
-        <option value="<%= cat.id %>"><%= cat.name %></option>
-      <% }) %>
-    </select>
-    <button type="submit">追加</button>
-    <a href="/categories">カテゴリ管理</a>
-  </form>
-  <% const today = new Date().toISOString().slice(0, 10); %>
-  <% categories.forEach(cat => { %>
+  <div class="container">
+    <h1>TODOリスト</h1>
+    <form action="/add" method="post">
+      <input type="text" name="task" placeholder="新しいタスク" required>
+      <input type="date" name="due_date" placeholder="期限日">
+      <select name="category_id">
+        <option value="">カテゴリ選択</option>
+        <% categories.forEach(cat => { %>
+          <option value="<%= cat.id %>"><%= cat.name %></option>
+        <% }) %>
+      </select>
+      <button type="submit">追加</button>
+      <a href="/categories" class="btn">カテゴリ管理</a>
+    </form>
+    <% const today = new Date().toISOString().slice(0, 10); %>
+    <% categories.forEach(cat => { %>
+      <div class="category-block">
+        <div class="category-title"><%= cat.name %></div>
+        <ul>
+          <% todos.filter(todo => todo.category_id === cat.id).forEach(todo => { %>
+            <li class="<%= todo.due_date && todo.due_date < today && !todo.done ? 'overdue' : '' %>">
+              <span class="<%= todo.done ? 'done' : '' %>"><%= todo.task %></span>
+              <span class="task-meta">
+                <% if (todo.due_date) { %>
+                  期限: <%= todo.due_date %>
+                <% } %>
+                <% if (todo.created_at) { %>
+                  ／ 登録: <%= todo.created_at %>
+                <% } %>
+              </span>
+              <span class="task-actions">
+                <% if (!todo.done) { %>
+                  <form action="/done/<%= todo.id %>" method="post" style="display:inline;">
+                    <button type="submit">完了</button>
+                  </form>
+                <% } %>
+                <form action="/delete/<%= todo.id %>" method="post" style="display:inline;">
+                  <button type="submit">削除</button>
+                </form>
+              </span>
+            </li>
+          <% }) %>
+        </ul>
+      </div>
+    <% }) %>
     <div class="category-block">
-      <div class="category-title"><%= cat.name %></div>
+      <div class="category-title">カテゴリ未設定</div>
       <ul>
-        <% todos.filter(todo => todo.category_id === cat.id).forEach(todo => { %>
+        <% todos.filter(todo => !todo.category_id).forEach(todo => { %>
           <li class="<%= todo.due_date && todo.due_date < today && !todo.done ? 'overdue' : '' %>">
             <span class="<%= todo.done ? 'done' : '' %>"><%= todo.task %></span>
-            <% if (todo.due_date) { %>
-              <span>（期限: <%= todo.due_date %>）</span>
-            <% } %>
-            <% if (todo.created_at) { %>
-              <span>［登録: <%= todo.created_at %>］</span>
-            <% } %>
-            <% if (!todo.done) { %>
-              <form action="/done/<%= todo.id %>" method="post" style="display:inline;">
-                <button type="submit">完了</button>
+            <span class="task-meta">
+              <% if (todo.due_date) { %>
+                期限: <%= todo.due_date %>
+              <% } %>
+              <% if (todo.created_at) { %>
+                ／ 登録: <%= todo.created_at %>
+              <% } %>
+            </span>
+            <span class="task-actions">
+              <% if (!todo.done) { %>
+                <form action="/done/<%= todo.id %>" method="post" style="display:inline;">
+                  <button type="submit">完了</button>
+                </form>
+              <% } %>
+              <form action="/delete/<%= todo.id %>" method="post" style="display:inline;">
+                <button type="submit">削除</button>
               </form>
-            <% } %>
-            <form action="/delete/<%= todo.id %>" method="post" style="display:inline;">
-              <button type="submit">削除</button>
-            </form>
+            </span>
           </li>
         <% }) %>
       </ul>
     </div>
-  <% }) %>
-  <div class="category-block">
-    <div class="category-title">カテゴリ未設定</div>
-    <ul>
-      <% todos.filter(todo => !todo.category_id).forEach(todo => { %>
-        <li class="<%= todo.due_date && todo.due_date < today && !todo.done ? 'overdue' : '' %>">
-          <span class="<%= todo.done ? 'done' : '' %>"><%= todo.task %></span>
-          <% if (todo.due_date) { %>
-            <span>（期限: <%= todo.due_date %>）</span>
-          <% } %>
-          <% if (todo.created_at) { %>
-            <span>［登録: <%= todo.created_at %>］</span>
-          <% } %>
-          <% if (!todo.done) { %>
-            <form action="/done/<%= todo.id %>" method="post" style="display:inline;">
-              <button type="submit">完了</button>
-            </form>
-          <% } %>
-          <form action="/delete/<%= todo.id %>" method="post" style="display:inline;">
-            <button type="submit">削除</button>
-          </form>
-        </li>
-      <% }) %>
-    </ul>
   </div>
 </body>
 </html>
