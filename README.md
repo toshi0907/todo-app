@@ -54,11 +54,12 @@ Node.js（Express）＋ SQLite3 によるシンプルなTODO管理アプリで�
   - 例: `cp .env.sample .env`
   - `PORT`（サーバーポート）、`DB_FILE`（DBファイルパス）、`DOMAIN`（公開用ドメイン名）などを設定できます。
 
-## SSL対応・公開（Nginx + Let's Encrypt）
+## SSL対応・公開（Nginx + Let's Encrypt + Basic認証）
 
 - 公開用ドメインを `.env` の `DOMAIN` に設定してください。
-- `ssl_publish.sh` を実行すると、Nginxのリバースプロキシ＋SSL証明書自動取得・設定が行われます。
+- `ssl_publish.sh` を実行すると、Nginxのリバースプロキシ＋SSL証明書自動取得・設定＋Basic認証が行われます。
   - 例: `sudo ./ssl_publish.sh`
+  - 初回実行時にBasic認証用のユーザー名・パスワードを対話的に設定できます。
 - 事前に80/443番ポートが開放されていること、ドメインのDNSがサーバーIPを向いていることを確認してください。
 
 ## トラブルシューティング
@@ -66,10 +67,15 @@ Node.js（Express）＋ SQLite3 によるシンプルなTODO管理アプリで�
 - 502 Bad Gateway: Node.jsアプリが起動していない、またはNginxのproxy_pass先が間違っている可能性があります。
   - `npm start` でアプリが動作しているか確認
   - `curl http://localhost:3000` で応答があるか確認
+  - Nginx設定ファイルの `proxy_pass` 行を再確認
 
 - SSL証明書取得エラー: Nginx設定の構文エラーや、ドメインのDNS未設定が原因の場合があります。
   - `/etc/nginx/sites-enabled/ドメイン名` の `proxy_set_header` 記述を確認
   - `sudo nginx -t` で構文チェック
+
+- Basic認証が効かない: ブラウザのキャッシュやNginx設定ミスの可能性があります。
+  - `/etc/nginx/.htpasswd` の存在と内容を確認
+  - Nginx設定ファイルの `auth_basic` 記述を確認
 
 ## ライセンス
 MIT

@@ -19,6 +19,16 @@ sudo apt-get install -y nginx certbot python3-certbot-nginx
 sudo systemctl enable nginx
 sudo systemctl start nginx
 
+# Basic認証用ユーザー作成（初回のみ）
+if [ ! -f /etc/nginx/.htpasswd ]; then
+  echo "Basic認証用のユーザー名を入力してください: "
+  read -r BASIC_USER
+  sudo apt-get install -y apache2-utils
+  sudo htpasswd -c /etc/nginx/.htpasswd "$BASIC_USER"
+else
+  echo "既存の /etc/nginx/.htpasswd を利用します。"
+fi
+
 # Nginxサーバーブロック作成
 sudo tee /etc/nginx/sites-available/$domain > /dev/null <<EOF
 server {
@@ -26,6 +36,8 @@ server {
     server_name $domain;
 
     location / {
+        auth_basic "Restricted";
+        auth_basic_user_file /etc/nginx/.htpasswd;
         proxy_pass http://localhost:3000;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
