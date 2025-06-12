@@ -48,5 +48,28 @@ Node.js（Express）＋ SQLite3 によるシンプルなTODO管理アプリで�
 2. サーバー起動: `npm start`
 3. ブラウザで [http://localhost:3000](http://localhost:3000) にアクセス
 
+## 環境変数設定
+
+- `.env.sample` をコピーして `.env` を作成し、必要に応じて編集してください。
+  - 例: `cp .env.sample .env`
+  - `PORT`（サーバーポート）、`DB_FILE`（DBファイルパス）、`DOMAIN`（公開用ドメイン名）などを設定できます。
+
+## SSL対応・公開（Nginx + Let's Encrypt）
+
+- 公開用ドメインを `.env` の `DOMAIN` に設定してください。
+- `ssl_publish.sh` を実行すると、Nginxのリバースプロキシ＋SSL証明書自動取得・設定が行われます。
+  - 例: `sudo ./ssl_publish.sh`
+- 事前に80/443番ポートが開放されていること、ドメインのDNSがサーバーIPを向いていることを確認してください。
+
+## トラブルシューティング
+
+- 502 Bad Gateway: Node.jsアプリが起動していない、またはNginxのproxy_pass先が間違っている可能性があります。
+  - `npm start` でアプリが動作しているか確認
+  - `curl http://localhost:3000` で応答があるか確認
+
+- SSL証明書取得エラー: Nginx設定の構文エラーや、ドメインのDNS未設定が原因の場合があります。
+  - `/etc/nginx/sites-enabled/ドメイン名` の `proxy_set_header` 記述を確認
+  - `sudo nginx -t` で構文チェック
+
 ## ライセンス
 MIT
