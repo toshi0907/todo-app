@@ -1,3 +1,4 @@
+require('dotenv').config();
 
 const fs = require('fs');
 const express = require('express');
@@ -5,7 +6,7 @@ const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const path = require('path');
 
-const DB_FILE = './todo.db';
+const DB_FILE = process.env.DB_FILE || './todo.db';
 const MIGRATE_FILE = './migrate.sql';
 
 // DBファイルがなければ自動作成
