@@ -107,9 +107,35 @@ app.post('/done/:id', (req, res) => {
   });
 });
 
+// タスク未完了に戻す
+app.post('/undone/:id', (req, res) => {
+  db.run('UPDATE todos SET done = 0 WHERE id = ?', [req.params.id], err => {
+    res.redirect('/');
+  });
+});
+
 // タスク削除
 app.post('/delete/:id', (req, res) => {
   db.run('DELETE FROM todos WHERE id = ?', [req.params.id], err => {
+    res.redirect('/');
+  });
+});
+
+// タスク編集画面
+app.get('/edit/:id', (req, res) => {
+  db.get('SELECT * FROM todos WHERE id = ?', [req.params.id], (err, todo) => {
+    if (err || !todo) return res.status(404).send('タスクが見つかりません');
+    db.all('SELECT * FROM categories', (err, categories) => {
+      if (err) return res.status(500).send('DB error');
+      res.render('edit', { todo, categories });
+    });
+  });
+});
+
+// タスク編集処理
+app.post('/edit/:id', (req, res) => {
+  const { task, due_date, category_id } = req.body;
+  db.run('UPDATE todos SET task = ?, due_date = ?, category_id = ? WHERE id = ?', [task, due_date || null, category_id || null, req.params.id], err => {
     res.redirect('/');
   });
 });

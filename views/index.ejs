@@ -42,7 +42,14 @@
                   <form action="/done/<%= todo.id %>" method="post" style="display:inline;">
                     <button type="submit">完了</button>
                   </form>
+                <% } else { %>
+                  <form action="/undone/<%= todo.id %>" method="post" style="display:inline;">
+                    <button type="submit">未完了に戻す</button>
+                  </form>
                 <% } %>
+                <form action="/edit/<%= todo.id %>" method="get" style="display:inline;">
+                  <button type="submit">編集</button>
+                </form>
                 <form action="/delete/<%= todo.id %>" method="post" style="display:inline;">
                   <button type="submit">削除</button>
                 </form>
@@ -71,7 +78,14 @@
                 <form action="/done/<%= todo.id %>" method="post" style="display:inline;">
                   <button type="submit">完了</button>
                 </form>
+              <% } else { %>
+                <form action="/undone/<%= todo.id %>" method="post" style="display:inline;">
+                  <button type="submit">未完了に戻す</button>
+                </form>
               <% } %>
+              <form action="/edit/<%= todo.id %>" method="get" style="display:inline;">
+                <button type="submit">編集</button>
+              </form>
               <form action="/delete/<%= todo.id %>" method="post" style="display:inline;">
                 <button type="submit">削除</button>
               </form>
