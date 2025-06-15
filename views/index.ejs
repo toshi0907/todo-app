@@ -18,8 +18,8 @@
           <option value="<%= cat.id %>"><%= cat.name %></option>
         <% }) %>
       </select>
-      <button type="submit">追加</button>
-      <a href="/categories" class="btn">カテゴリ管理</a>
+      <button type="submit" title="追加">➕</button>
+      <a href="/categories" class="btn" title="カテゴリ管理">📂</a>
     </form>
     <% const today = new Date().toISOString().slice(0, 10); %>
     <% categories.forEach(cat => { %>
@@ -30,28 +30,24 @@
             <li class="<%= todo.due_date && todo.due_date < today && !todo.done ? 'overdue' : '' %>">
               <span class="<%= todo.done ? 'done' : '' %>"><%= todo.task %></span>
               <span class="task-meta">
-                <% if (todo.due_date) { %>
-                  期限: <%= todo.due_date %>
-                <% } %>
-                <% if (todo.created_at) { %>
-                  ／ 登録: <%= todo.created_at %>
-                <% } %>
+                <% if (todo.due_date) { %>〆<%= todo.due_date.slice(5) %><% } %>
               </span>
               <span class="task-actions">
                 <% if (!todo.done) { %>
-                  <form action="/done/<%= todo.id %>" method="post" style="display:inline;">
-                    <button type="submit">完了</button>
+                    <form action="/done/<%= todo.id %>" method="post" style="display:inline;">
+                    <button type="submit" title="完了">✅</button>
+                    </form>
+                  <% } else { %>
+                    <form action="/undone/<%= todo.id %>" method="post" style="display:inline;">
+                    <button type="submit" title="未完了に戻す">↩️</button>
+                    </form>
+                  <% } %>
+                  <form action="/edit/<%= todo.id %>" method="get" style="display:inline;">
+                    <button type="submit" title="編集">✏️</button>
                   </form>
-                <% } else { %>
-                  <form action="/undone/<%= todo.id %>" method="post" style="display:inline;">
-                    <button type="submit">未完了に戻す</button>
+                  <form action="/delete/<%= todo.id %>" method="post" style="display:inline;">
+                    <button type="submit" title="削除">🗑️</button>
                   </form>
-                <% } %>
-                <form action="/edit/<%= todo.id %>" method="get" style="display:inline;">
-                  <button type="submit">編集</button>
-                </form>
-                <form action="/delete/<%= todo.id %>" method="post" style="display:inline;">
-                  <button type="submit">削除</button>
                 </form>
               </span>
             </li>
@@ -66,28 +62,23 @@
           <li class="<%= todo.due_date && todo.due_date < today && !todo.done ? 'overdue' : '' %>">
             <span class="<%= todo.done ? 'done' : '' %>"><%= todo.task %></span>
             <span class="task-meta">
-              <% if (todo.due_date) { %>
-                期限: <%= todo.due_date %>
-              <% } %>
-              <% if (todo.created_at) { %>
-                ／ 登録: <%= todo.created_at %>
-              <% } %>
+              <% if (todo.due_date) { %>〆<%= todo.due_date.slice(5) %><% } %>
             </span>
             <span class="task-actions">
               <% if (!todo.done) { %>
                 <form action="/done/<%= todo.id %>" method="post" style="display:inline;">
-                  <button type="submit">完了</button>
+                  <button type="submit" title="完了">✅</button>
                 </form>
               <% } else { %>
                 <form action="/undone/<%= todo.id %>" method="post" style="display:inline;">
-                  <button type="submit">未完了に戻す</button>
+                  <button type="submit" title="未完了に戻す">↩️</button>
                 </form>
               <% } %>
               <form action="/edit/<%= todo.id %>" method="get" style="display:inline;">
-                <button type="submit">編集</button>
+                <button type="submit" title="編集">✏️</button>
               </form>
               <form action="/delete/<%= todo.id %>" method="post" style="display:inline;">
-                <button type="submit">削除</button>
+                <button type="submit" title="削除">🗑️</button>
               </form>
             </span>
           </li>
