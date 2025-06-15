@@ -4,9 +4,12 @@
   "description": "Node.js + Express + SQLite のTODO管理アプリ",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "jest"
   },
   "dependencies": {
+    "supertest": "^6.3.3",
+    "jest": "^29.7.0",
     "body-parser": "^1.20.2",
     "dotenv": "^16.5.0",
     "ejs": "^3.1.9",

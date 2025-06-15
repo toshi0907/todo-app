@@ -6,7 +6,7 @@ const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const path = require('path');
 
-const DB_FILE = process.env.DB_FILE || './todo.db';
+const DB_FILE = process.env.NODE_ENV === 'test' ? './test.db' : (process.env.DB_FILE || './todo.db');
 const MIGRATE_FILE = './migrate.sql';
 
 // DBファイルがなければ自動作成
@@ -140,7 +140,11 @@ app.post('/edit/:id', (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;
