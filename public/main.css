@@ -224,20 +224,23 @@ li {
   }
   .task-actions {
     width: 100%;
-    margin-top: 0.3em;
+    margin-top: 0.4em;
     display: flex;
-    gap: 0.4em;
+    gap: 1.1em;
     justify-content: flex-end;
   }
   .task-actions button {
     width: auto;
-    min-width: 2.7em;
-    font-size: 1.15em;
-    padding: 0.7em 1em;
-    border-radius: 6px;
+    min-width: 3.2em;
+    font-size: 1.25em;
+    padding: 1em 1.2em;
+    border-radius: 8px;
     background: #64748b;
     color: #fff;
     border: none;
+    margin-right: 0.1em;
+    margin-left: 0.1em;
+    box-shadow: 0 1px 4px #0002;
   }
   .task-actions button:active {
     background: #334155;
