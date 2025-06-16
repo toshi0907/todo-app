@@ -65,8 +65,15 @@ app.post('/add', (req, res) => {
   if (!task) return res.redirect('/');
   // 日付＋時間があればそちらを優先
   let due = due_datetime || due_date || null;
-  // datetime-localは"YYYY-MM-DDTHH:mm"形式なので、DB保存時は"YYYY-MM-DD HH:mm"に変換
   if (due && due.includes('T')) due = due.replace('T', ' ');
+  // バリデーション: dueがnullでなければ形式チェック
+  if (due) {
+    const dateRe = /^\d{4}-\d{2}-\d{2}$/;
+    const datetimeRe = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+    if (!(dateRe.test(due) || datetimeRe.test(due))) {
+      return res.redirect('/');
+    }
+  }
   const created_at = new Date().toISOString().replace('T', ' ').slice(0, 19);
   db.run('INSERT INTO todos (task, due_date, category_id, created_at) VALUES (?, ?, ?, ?)', [task, due, category_id || null, created_at], err => {
     res.redirect('/');
@@ -141,6 +148,14 @@ app.post('/edit/:id', (req, res) => {
   const { task, due_date, due_datetime, category_id } = req.body;
   let due = due_datetime || due_date || null;
   if (due && due.includes('T')) due = due.replace('T', ' ');
+  // バリデーション: dueがnullでなければ形式チェック
+  if (due) {
+    const dateRe = /^\d{4}-\d{2}-\d{2}$/;
+    const datetimeRe = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+    if (!(dateRe.test(due) || datetimeRe.test(due))) {
+      return res.redirect('/');
+    }
+  }
   db.run('UPDATE todos SET task = ?, due_date = ?, category_id = ? WHERE id = ?', [task, due, category_id || null, req.params.id], err => {
     res.redirect('/');
   });
