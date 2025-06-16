@@ -147,7 +147,7 @@ li {
     background: #334155;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 600px) {
   html, body {
     font-size: 18px;
   }
