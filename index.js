@@ -54,17 +54,21 @@ app.get('/', (req, res) => {
     if (err) return res.status(500).send('DB error');
     db.all('SELECT * FROM categories', (err, categories) => {
       if (err) return res.status(500).send('DB error');
-      res.render('index', { todos, categories });
+      res.render('index', { todos, categories, now: new Date() });
     });
   });
 });
 
 // タスク追加
 app.post('/add', (req, res) => {
-  const { task, due_date, category_id } = req.body;
+  const { task, due_date, due_datetime, category_id } = req.body;
   if (!task) return res.redirect('/');
+  // 日付＋時間があればそちらを優先
+  let due = due_datetime || due_date || null;
+  // datetime-localは"YYYY-MM-DDTHH:mm"形式なので、DB保存時は"YYYY-MM-DD HH:mm"に変換
+  if (due && due.includes('T')) due = due.replace('T', ' ');
   const created_at = new Date().toISOString().replace('T', ' ').slice(0, 19);
-  db.run('INSERT INTO todos (task, due_date, category_id, created_at) VALUES (?, ?, ?, ?)', [task, due_date || null, category_id || null, created_at], err => {
+  db.run('INSERT INTO todos (task, due_date, category_id, created_at) VALUES (?, ?, ?, ?)', [task, due, category_id || null, created_at], err => {
     res.redirect('/');
   });
 });
@@ -72,7 +76,7 @@ app.post('/add', (req, res) => {
 app.get('/categories', (req, res) => {
   db.all('SELECT * FROM categories', (err, categories) => {
     if (err) return res.status(500).send('DB error');
-    res.render('categories', { categories });
+    res.render('categories', { categories, now: new Date() });
   });
 });
 
@@ -127,15 +131,17 @@ app.get('/edit/:id', (req, res) => {
     if (err || !todo) return res.status(404).send('タスクが見つかりません');
     db.all('SELECT * FROM categories', (err, categories) => {
       if (err) return res.status(500).send('DB error');
-      res.render('edit', { todo, categories });
+      res.render('edit', { todo, categories, now: new Date() });
     });
   });
 });
 
 // タスク編集処理
 app.post('/edit/:id', (req, res) => {
-  const { task, due_date, category_id } = req.body;
-  db.run('UPDATE todos SET task = ?, due_date = ?, category_id = ? WHERE id = ?', [task, due_date || null, category_id || null, req.params.id], err => {
+  const { task, due_date, due_datetime, category_id } = req.body;
+  let due = due_datetime || due_date || null;
+  if (due && due.includes('T')) due = due.replace('T', ' ');
+  db.run('UPDATE todos SET task = ?, due_date = ?, category_id = ? WHERE id = ?', [task, due, category_id || null, req.params.id], err => {
     res.redirect('/');
   });
 });

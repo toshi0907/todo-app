@@ -10,9 +10,35 @@
 <body>
   <div class="container">
     <h1>タスク編集</h1>
+    <div style="text-align:right; color:#64748b; font-size:0.98em; margin-bottom:0.5em;">
+      現在時刻: <%= now.toLocaleString('ja-JP', { hour12: false }) %>
+    </div>
     <form action="/edit/<%= todo.id %>" method="post">
       <input type="text" name="task" value="<%= todo.task %>" required>
-      <input type="date" name="due_date" value="<%= todo.due_date || '' %>">
+      <select name="due_type" id="due_type" style="margin-bottom:0.2em;">
+        <option value="date" <%= todo.due_date && todo.due_date.length === 10 ? 'selected' : '' %>>日付のみ</option>
+        <option value="datetime" <%= todo.due_date && todo.due_date.length > 10 ? 'selected' : '' %>>日付＋時間</option>
+      </select>
+      <input type="date" name="due_date" id="due_date" value="<%= todo.due_date && todo.due_date.length === 10 ? todo.due_date : '' %>">
+      <input type="datetime-local" name="due_datetime" id="due_datetime" value="<%= todo.due_date && todo.due_date.length > 10 ? todo.due_date.replace(' ', 'T') : '' %>" style="display:none;">
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          const typeSel = document.getElementById('due_type');
+          const dateInput = document.getElementById('due_date');
+          const datetimeInput = document.getElementById('due_datetime');
+          function toggle() {
+            if (typeSel.value === 'datetime') {
+              dateInput.style.display = 'none';
+              datetimeInput.style.display = 'inline-block';
+            } else {
+              dateInput.style.display = 'inline-block';
+              datetimeInput.style.display = 'none';
+            }
+          }
+          typeSel.addEventListener('change', toggle);
+          toggle();
+        });
+      </script>
       <select name="category_id">
         <option value="">カテゴリ選択</option>
         <% categories.forEach(cat => { %>

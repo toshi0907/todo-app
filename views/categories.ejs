@@ -9,6 +9,9 @@
 <body>
   <div class="container">
     <h1>カテゴリ管理</h1>
+    <div style="text-align:right; color:#64748b; font-size:0.98em; margin-bottom:0.5em;">
+      現在時刻: <%= now.toLocaleString('ja-JP', { hour12: false }) %>
+    </div>
     <form action="/categories/add" method="post">
       <input type="text" name="name" placeholder="新しいカテゴリ" required>
       <button type="submit">追加</button>

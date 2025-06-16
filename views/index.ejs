@@ -9,9 +9,34 @@
 <body>
   <div class="container">
     <h1>TODOリスト</h1>
+    <div style="text-align:right; color:#64748b; font-size:0.98em; margin-bottom:0.5em;">
+      現在時刻: <%= now.toLocaleString('ja-JP', { hour12: false }) %>
+    </div>
     <form action="/add" method="post">
       <input type="text" name="task" placeholder="新しいタスク" required>
-      <input type="date" name="due_date" placeholder="期限日">
+      <select name="due_type" id="due_type" style="margin-bottom:0.2em;">
+        <option value="date">日付のみ</option>
+        <option value="datetime">日付＋時間</option>
+      </select>
+      <input type="date" name="due_date" id="due_date" placeholder="期限日" style="display:inline-block;">
+      <input type="datetime-local" name="due_datetime" id="due_datetime" placeholder="期限日時" style="display:none;">
+      <script>
+        // 入力切替スクリプト
+        document.addEventListener('DOMContentLoaded', function() {
+          const typeSel = document.getElementById('due_type');
+          const dateInput = document.getElementById('due_date');
+          const datetimeInput = document.getElementById('due_datetime');
+          typeSel.addEventListener('change', function() {
+            if (typeSel.value === 'datetime') {
+              dateInput.style.display = 'none';
+              datetimeInput.style.display = 'inline-block';
+            } else {
+              dateInput.style.display = 'inline-block';
+              datetimeInput.style.display = 'none';
+            }
+          });
+        });
+      </script>
       <select name="category_id">
         <option value="">カテゴリ選択</option>
         <% categories.forEach(cat => { %>
@@ -31,7 +56,13 @@
           <li class="<%= todo.due_date && todo.due_date < today && !todo.done ? 'overdue' : '' %>">
             <span class="<%= todo.done ? 'done' : '' %>"><%= todo.task %></span>
             <span class="task-meta">
-              <% if (todo.due_date) { %>〆<%= todo.due_date.slice(5) %><% } %>
+              <% if (todo.due_date) { %>
+                <% if (todo.due_date.length > 10) { %>
+                  〆<%= todo.due_date.slice(5, 16).replace(' ', '/') %>
+                <% } else { %>
+                  〆<%= todo.due_date.slice(5) %>
+                <% } %>
+              <% } %>
             </span>
             <span class="task-actions">
               <% if (!todo.done) { %>
@@ -63,7 +94,13 @@
             <li class="<%= todo.due_date && todo.due_date < today && !todo.done ? 'overdue' : '' %>">
               <span class="<%= todo.done ? 'done' : '' %>"><%= todo.task %></span>
               <span class="task-meta">
-                <% if (todo.due_date) { %>〆<%= todo.due_date.slice(5) %><% } %>
+                <% if (todo.due_date) { %>
+                  <% if (todo.due_date.length > 10) { %>
+                    〆<%= todo.due_date.slice(5, 16).replace(' ', '/') %>
+                  <% } else { %>
+                    〆<%= todo.due_date.slice(5) %>
+                  <% } %>
+                <% } %>
               </span>
               <span class="task-actions">
                 <% if (!todo.done) { %>
