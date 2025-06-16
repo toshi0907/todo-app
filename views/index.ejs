@@ -22,6 +22,39 @@
       <a href="/categories" class="btn" title="カテゴリ管理">📂</a>
     </form>
     <% const today = new Date().toISOString().slice(0, 10); %>
+    <!-- カテゴリ未設定を先頭に表示 -->
+    <div class="category-block">
+      <div class="category-title">カテゴリ未設定</div>
+      <ul>
+        <% todos.filter(todo => !todo.category_id).forEach(todo => { %>
+          
+          <li class="<%= todo.due_date && todo.due_date < today && !todo.done ? 'overdue' : '' %>">
+            <span class="<%= todo.done ? 'done' : '' %>"><%= todo.task %></span>
+            <span class="task-meta">
+              <% if (todo.due_date) { %>〆<%= todo.due_date.slice(5) %><% } %>
+            </span>
+            <span class="task-actions">
+              <% if (!todo.done) { %>
+                <form action="/done/<%= todo.id %>" method="post" style="display:inline;">
+                  <button type="submit" title="完了">✅</button>
+                </form>
+              <% } else { %>
+                <form action="/undone/<%= todo.id %>" method="post" style="display:inline;">
+                  <button type="submit" title="未完了に戻す">↩️</button>
+                </form>
+              <% } %>
+              <form action="/edit/<%= todo.id %>" method="get" style="display:inline;">
+                <button type="submit" title="編集">✏️</button>
+              </form>
+              <form action="/delete/<%= todo.id %>" method="post" style="display:inline;">
+                <button type="submit" title="削除">🗑️</button>
+              </form>
+            </span>
+          </li>
+        <% }) %>
+      </ul>
+    </div>
+    <!-- カテゴリ付きタスクを後ろに -->
     <% categories.forEach(cat => { %>
       <div class="category-block">
         <div class="category-title"><%= cat.name %></div>
@@ -55,36 +88,6 @@
         </ul>
       </div>
     <% }) %>
-    <div class="category-block">
-      <div class="category-title">カテゴリ未設定</div>
-      <ul>
-        <% todos.filter(todo => !todo.category_id).forEach(todo => { %>
-          <li class="<%= todo.due_date && todo.due_date < today && !todo.done ? 'overdue' : '' %>">
-            <span class="<%= todo.done ? 'done' : '' %>"><%= todo.task %></span>
-            <span class="task-meta">
-              <% if (todo.due_date) { %>〆<%= todo.due_date.slice(5) %><% } %>
-            </span>
-            <span class="task-actions">
-              <% if (!todo.done) { %>
-                <form action="/done/<%= todo.id %>" method="post" style="display:inline;">
-                  <button type="submit" title="完了">✅</button>
-                </form>
-              <% } else { %>
-                <form action="/undone/<%= todo.id %>" method="post" style="display:inline;">
-                  <button type="submit" title="未完了に戻す">↩️</button>
-                </form>
-              <% } %>
-              <form action="/edit/<%= todo.id %>" method="get" style="display:inline;">
-                <button type="submit" title="編集">✏️</button>
-              </form>
-              <form action="/delete/<%= todo.id %>" method="post" style="display:inline;">
-                <button type="submit" title="削除">🗑️</button>
-              </form>
-            </span>
-          </li>
-        <% }) %>
-      </ul>
-    </div>
     <%- include('footer') %>
   </div>
 </body>
