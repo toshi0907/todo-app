@@ -127,5 +127,16 @@
     <% }) %>
     <%- include('footer') %>
   </div>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('form[action^="/delete/"] button[type="submit"]').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        if (!confirm('本当に削除しますか？この操作は元に戻せません。')) {
+          e.preventDefault();
+        }
+      });
+    });
+  });
+</script>
 </body>
 </html>
