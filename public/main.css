@@ -263,3 +263,312 @@ li {
     margin-bottom: 0.1em;
   }
 }
+
+/* Pixel 7等のモバイルデバイス向け詳細最適化 */
+@media (max-width: 428px) {
+  .container {
+    margin: 0.5em;
+    padding: 1.2em;
+    border-radius: 16px;
+  }
+  
+  /* フォーム全体の改善 */
+  form {
+    flex-direction: column;
+    gap: 0.8em;
+    align-items: stretch;
+  }
+  
+  /* 入力フィールドの改善 */
+  input[type="text"] {
+    padding: 1em;
+    font-size: 1.1em;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    min-height: 2.5em;
+    box-sizing: border-box;
+  }
+  
+  input[type="text"]:focus {
+    border-color: #3b82f6;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+  
+  /* 日付・時間入力の改善 */
+  input[type="date"],
+  input[type="datetime-local"] {
+    padding: 1em;
+    font-size: 1.05em;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    min-height: 2.5em;
+    box-sizing: border-box;
+  }
+  
+  /* セレクト要素の改善 */
+  select {
+    padding: 1em;
+    font-size: 1.05em;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    min-height: 2.5em;
+    box-sizing: border-box;
+    background: #fff;
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 1em center;
+    background-size: 0.65em;
+    padding-right: 2.5em;
+  }
+  
+  /* ボタンの改善 */
+  button[type="submit"],
+  a.btn {
+    padding: 1.1em 1.5em;
+    font-size: 1.1em;
+    border-radius: 12px;
+    min-height: 3em;
+    font-weight: 500;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+  }
+  
+  /* メインの追加ボタン */
+  form button[type="submit"]:first-of-type {
+    background: #3b82f6;
+    color: #fff;
+    border: none;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  }
+  
+  form button[type="submit"]:first-of-type:active {
+    background: #2563eb;
+    transform: translateY(1px);
+  }
+  
+  /* カテゴリ管理ボタン */
+  a.btn {
+    background: #64748b;
+    color: #fff;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(100, 116, 139, 0.2);
+  }
+  
+  /* タスクリストの改善 */
+  li {
+    padding: 1.3em 1em;
+    margin-bottom: 1em;
+    border-radius: 12px;
+    font-size: 1.1em;
+    line-height: 1.4;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #f1f5f9;
+  }
+  
+  /* タスクアクションボタンの改善 */
+  .task-actions {
+    margin-top: 0.8em;
+    gap: 0.6em;
+    flex-wrap: wrap;
+  }
+  
+  .task-actions button {
+    min-width: 3.5em;
+    min-height: 3.5em;
+    font-size: 1.3em;
+    padding: 0.8em;
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 2px 6px rgba(100, 116, 139, 0.2);
+    transition: all 0.2s ease;
+  }
+  
+  .task-actions button:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 3px rgba(100, 116, 139, 0.3);
+  }
+  
+  /* タスクメタ情報 */
+  .task-meta {
+    font-size: 0.95em;
+    margin-top: 0.4em;
+    color: #64748b;
+    font-weight: 500;
+  }
+  
+  /* カテゴリタイトル */
+  .category-title {
+    font-size: 1.2em;
+    margin-top: 1.5em;
+    margin-bottom: 0.8em;
+    padding: 0.5em 0;
+    border-bottom: 2px solid #e2e8f0;
+    color: #1e40af;
+    font-weight: 600;
+  }
+  
+  /* 期限切れタスクの強調 */
+  li.overdue {
+    border-left: 4px solid #ef4444;
+    background: #fef2f2;
+    border-color: #fecaca;
+  }
+  
+  /* 完了タスクのスタイル */
+  .done {
+    opacity: 0.6;
+    text-decoration: line-through;
+    color: #64748b;
+  }
+  
+  /* フッターの調整 */
+  .footer-version {
+    right: 0.8em;
+    bottom: 0.8em;
+    font-size: 0.9em;
+    padding: 0.4em 0.8em;
+    border-radius: 20px;
+  }
+  
+  /* スクロール時のパフォーマンス改善 */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* タップ時のハイライト無効化 */
+  button, input, select, a {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* フォーカス時のズーム防止 */
+  input[type="text"],
+  input[type="date"],
+  input[type="datetime-local"],
+  select {
+    font-size: 16px; /* 16px以上でズーム防止 */
+  }
+  
+  /* 読み込み中のフィードバック */
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  /* Ajax読み込み中の視覚的フィードバック */
+  .loading {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: loading 1.5s infinite;
+  }
+  
+  @keyframes loading {
+    0% { left: -100%; }
+    100% { left: 100%; }
+  }
+  
+  /* フォーム送信時のフィードバック */
+  .form-submitting {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  
+  /* エラー状態の表示 */
+  .error-message {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    padding: 0.8em 1em;
+    border-radius: 8px;
+    margin: 0.5em 0;
+    font-size: 0.95em;
+  }
+  
+  /* 成功状態の表示 */
+  .success-message {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #16a34a;
+    padding: 0.8em 1em;
+    border-radius: 8px;
+    margin: 0.5em 0;
+    font-size: 0.95em;
+  }
+  
+  /* スワイプ操作の改善 */
+  li {
+    touch-action: pan-y;
+  }
+  
+  /* 長押し操作の改善 */
+  .task-actions button {
+    touch-action: manipulation;
+  }
+  
+  /* 縦向き・横向きの調整 */
+  @media (orientation: landscape) {
+    form {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0.5em;
+    }
+    
+    input[type="text"] {
+      flex: 1;
+      min-width: 200px;
+    }
+    
+    select {
+      flex: 0 0 auto;
+      min-width: 120px;
+    }
+    
+    button[type="submit"],
+    a.btn {
+      flex: 0 0 auto;
+      min-width: 60px;
+    }
+  }
+}
+
+/* 高解像度ディスプレイ対応 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  button, input, select {
+    border-width: 0.5px;
+  }
+  
+  .task-actions button {
+    border-width: 0.5px;
+  }
+}
+
+/* ダークモード対応準備 */
+@media (prefers-color-scheme: dark) {
+  /* 将来的なダークモード対応のためのスタイル */
+  /* 現在は無効化しているが、必要に応じて有効化可能 */
+  /*
+  body {
+    background: #1a202c;
+    color: #e2e8f0;
+  }
+  
+  .container {
+    background: #2d3748;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.3);
+  }
+  */
+}
