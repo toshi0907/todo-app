@@ -284,4 +284,184 @@ describe('TODOアプリ', () => {
     expect(res.text).not.toContain('不正日付タスク');
     expect(res.text).not.toContain('不正時間タスク');
   });
+
+  it('タスク追加フォームが正しく動作し、追加後にタスクが表示される', async () => {
+    // 追加前のタスク数を取得
+    const res1 = await request(app).get('/');
+    expect(res1.statusCode).toBe(200);
+    const beforeTaskCount = (res1.text.match(/<li class=/g) || []).length;
+    
+    // タスクを追加
+    const taskName = `追加テスト_${Date.now()}`;
+    const res2 = await request(app)
+      .post('/add')
+      .send(`task=${encodeURIComponent(taskName)}`)
+      .set('Content-Type', 'application/x-www-form-urlencoded');
+    
+    // リダイレクトされることを確認
+    expect(res2.statusCode).toBe(302);
+    expect(res2.headers.location).toBe('/');
+    
+    // 追加後のページを取得
+    const res3 = await request(app).get('/');
+    expect(res3.statusCode).toBe(200);
+    
+    // タスクが実際に表示されていることを確認
+    expect(res3.text).toContain(taskName);
+    
+    // タスク数が1つ増えていることを確認
+    const afterTaskCount = (res3.text.match(/<li class=/g) || []).length;
+    expect(afterTaskCount).toBe(beforeTaskCount + 1);
+  });
+
+  it('空のタスク名でPOSTしてもエラーにならず、タスクは追加されない', async () => {
+    // 追加前のタスク数を取得
+    const res1 = await request(app).get('/');
+    const beforeTaskCount = (res1.text.match(/<li class=/g) || []).length;
+    
+    // 空のタスク名でPOST
+    const res2 = await request(app)
+      .post('/add')
+      .send('task=')
+      .set('Content-Type', 'application/x-www-form-urlencoded');
+    
+    // リダイレクトされることを確認
+    expect(res2.statusCode).toBe(302);
+    
+    // タスク数が変わっていないことを確認
+    const res3 = await request(app).get('/');
+    const afterTaskCount = (res3.text.match(/<li class=/g) || []).length;
+    expect(afterTaskCount).toBe(beforeTaskCount);
+  });
+
+  it('フォーム送信時にrequiredバリデーションが機能している', async () => {
+    const res = await request(app).get('/');
+    expect(res.statusCode).toBe(200);
+    
+    // フォームにrequired属性があることを確認
+    expect(res.text).toMatch(/<input[^>]*name="task"[^>]*required[^>]*>/);
+  });
+
+  // API エンドポイントのテスト
+  describe('API エンドポイント', () => {
+    it('タスク一覧APIが正常に動作する', async () => {
+      const res = await request(app).get('/api/todos');
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toHaveProperty('todos');
+      expect(res.body).toHaveProperty('categories');
+      expect(Array.isArray(res.body.todos)).toBe(true);
+      expect(Array.isArray(res.body.categories)).toBe(true);
+    });
+
+    it('タスク追加APIが正常に動作する', async () => {
+      const taskData = {
+        task: 'API追加テスト',
+        due_date: '2024-12-31',
+        category_id: null
+      };
+      const res = await request(app)
+        .post('/api/add')
+        .send(taskData)
+        .set('Content-Type', 'application/json');
+      
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toHaveProperty('success', true);
+      expect(res.body).toHaveProperty('id');
+
+      // 追加されたタスクを確認
+      const listRes = await request(app).get('/api/todos');
+      const addedTask = listRes.body.todos.find(t => t.task === 'API追加テスト');
+      expect(addedTask).toBeTruthy();
+      expect(addedTask.due_date).toBe('2024-12-31');
+    });
+
+    it('タスク追加APIでバリデーションエラーが正常に処理される', async () => {
+      const res = await request(app)
+        .post('/api/add')
+        .send({task: ''})
+        .set('Content-Type', 'application/json');
+      
+      expect(res.statusCode).toBe(400);
+      expect(res.body).toHaveProperty('error');
+    });
+
+    it('タスク完了APIが正常に動作する', async () => {
+      // まずタスクを追加
+      const addRes = await request(app)
+        .post('/api/add')
+        .send({task: '完了テスト'})
+        .set('Content-Type', 'application/json');
+      
+      const taskId = addRes.body.id;
+      
+      // 完了APIを実行
+      const doneRes = await request(app)
+        .post(`/api/done/${taskId}`)
+        .set('Content-Type', 'application/json');
+      
+      expect(doneRes.statusCode).toBe(200);
+      expect(doneRes.body).toHaveProperty('success', true);
+
+      // 完了状態を確認
+      const listRes = await request(app).get('/api/todos');
+      const completedTask = listRes.body.todos.find(t => t.id === taskId);
+      expect(completedTask.done).toBe(1);
+    });
+
+    it('タスク未完了APIが正常に動作する', async () => {
+      // まずタスクを追加して完了にする
+      const addRes = await request(app)
+        .post('/api/add')
+        .send({task: '未完了テスト'})
+        .set('Content-Type', 'application/json');
+      
+      const taskId = addRes.body.id;
+      await request(app).post(`/api/done/${taskId}`);
+      
+      // 未完了APIを実行
+      const undoneRes = await request(app)
+        .post(`/api/undone/${taskId}`)
+        .set('Content-Type', 'application/json');
+      
+      expect(undoneRes.statusCode).toBe(200);
+      expect(undoneRes.body).toHaveProperty('success', true);
+
+      // 未完了状態を確認
+      const listRes = await request(app).get('/api/todos');
+      const uncompletedTask = listRes.body.todos.find(t => t.id === taskId);
+      expect(uncompletedTask.done).toBe(0);
+    });
+
+    it('タスク削除APIが正常に動作する', async () => {
+      // まずタスクを追加
+      const addRes = await request(app)
+        .post('/api/add')
+        .send({task: '削除テスト'})
+        .set('Content-Type', 'application/json');
+      
+      const taskId = addRes.body.id;
+      
+      // 削除APIを実行
+      const deleteRes = await request(app)
+        .post(`/api/delete/${taskId}`)
+        .set('Content-Type', 'application/json');
+      
+      expect(deleteRes.statusCode).toBe(200);
+      expect(deleteRes.body).toHaveProperty('success', true);
+
+      // 削除されたことを確認
+      const listRes = await request(app).get('/api/todos');
+      const deletedTask = listRes.body.todos.find(t => t.id === taskId);
+      expect(deletedTask).toBeUndefined();
+    });
+
+    it('不正なタスクIDでAPIが適切にエラーを返す', async () => {
+      const res = await request(app)
+        .post('/api/done/99999')
+        .set('Content-Type', 'application/json');
+      
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toHaveProperty('success', true);
+    });
+  });
 });
