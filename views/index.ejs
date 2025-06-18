@@ -15,7 +15,17 @@
     <h1>TODOリスト</h1>
     <div style="text-align:right; color:#64748b; font-size:0.98em; margin-bottom:0.5em;">
       現在時刻: <%= now.toLocaleString('ja-JP', { hour12: false }) %>
-    </div>
+    </div>    
+    <details class="settings-details" style="margin-bottom:1em;">
+      <summary class="settings-summary" style="cursor:pointer; font-weight:bold; color:#2563eb; padding:0.3em 0;">
+      各種設定
+      </summary>
+      <div class="settings-content" style="margin-top:0.5em;">
+      <a href="/categories" class="btn btn-outline-primary" title="カテゴリ管理" style="font-size:1.1em;">
+        📂 カテゴリ管理
+      </a>
+      </div>
+    </details>
     <form action="/add" method="post">
       <input type="text" name="task" placeholder="新しいタスク" required>
       <select name="due_type" id="due_type" style="margin-bottom:0.2em;">
@@ -47,8 +57,7 @@
           <option value="<%= cat.id %>"><%= cat.name %></option>
         <% }) %>
       </select>
-      <button type="submit" title="追加">➕</button>
-      <a href="/categories" class="btn" title="カテゴリ管理">📂</a>
+      <button type="submit" title="追加">➕</button>      
     </form>
     <% const today = new Date().toISOString().slice(0, 10); %>
     <!-- カテゴリ未設定を先頭に表示 -->

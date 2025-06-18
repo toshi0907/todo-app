@@ -572,3 +572,37 @@ li {
   }
   */
 }
+
+/* 設定パネル（details/summary）のスタイル */
+.settings-details {
+  background: #f1f5f9;
+  border-radius: 6px;
+  padding: 0.7em 1em;
+  border: 1px solid #e5e7eb;
+  max-width: 320px;
+}
+
+.settings-details[open] {
+  box-shadow: 0 2px 8px rgba(59,130,246,0.07);
+}
+
+.settings-summary::-webkit-details-marker {
+  display: none;
+}
+
+.settings-summary:after {
+  content: "▼";
+  font-size: 0.8em;
+  margin-left: 0.5em;
+  color: #2563eb;
+  transition: transform 0.2s;
+  display: inline-block;
+}
+
+.settings-details[open] .settings-summary:after {
+  transform: rotate(-180deg);
+}
+
+.settings-content {
+  padding-left: 0.5em;
+}
