@@ -21,8 +21,23 @@ router.post('/add', (req, res) => {
 
 // カテゴリ削除
 router.post('/delete/:id', (req, res) => {
-  db.run('DELETE FROM categories WHERE id = ?', [req.params.id], err => {
-    res.redirect('/categories');
+  const categoryId = req.params.id;
+  
+  // 1. まず該当カテゴリのタスクのcategory_idをNULLに更新
+  db.run('UPDATE todos SET category_id = NULL WHERE category_id = ?', [categoryId], (err) => {
+    if (err) {
+      console.error('タスクのcategory_id更新エラー:', err);
+      return res.status(500).send('DB error');
+    }
+    
+    // 2. カテゴリを削除
+    db.run('DELETE FROM categories WHERE id = ?', [categoryId], (err) => {
+      if (err) {
+        console.error('カテゴリ削除エラー:', err);
+        return res.status(500).send('DB error');
+      }
+      res.redirect('/categories');
+    });
   });
 });
 
