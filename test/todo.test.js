@@ -464,4 +464,95 @@ describe('TODOアプリ', () => {
       expect(res.body).toHaveProperty('success', true);
     });
   });
+  it('【BUG検証】カテゴリ削除時にタスクの表示に問題が発生する', async () => {
+    // このテストは現在の実装のバグを検証するため、意図的に失敗させます
+    
+    // 1. カテゴリを作成
+    await request(app)
+      .post('/categories/add')
+      .send('name=バグ検証カテゴリ')
+      .set('Content-Type', 'application/x-www-form-urlencoded');
+    
+    let res = await request(app).get('/categories');
+    const match = res.text.match(/\/categories\/edit\/(\d+)/);
+    expect(match).not.toBeNull();
+    const catId = parseInt(match[1]);
+    
+    // 2. カテゴリ付きタスクを追加
+    await request(app)
+      .post('/add')
+      .send(`task=バグ検証タスク&category_id=${catId}`)
+      .set('Content-Type', 'application/x-www-form-urlencoded');
+    
+    // 3. タスクが正しく表示されることを確認
+    res = await request(app).get('/');
+    expect(res.text).toContain('バグ検証タスク');
+    expect(res.text).toContain('バグ検証カテゴリ');
+    
+    // 4. カテゴリを削除
+    await request(app)
+      .post(`/categories/delete/${catId}`)
+      .set('Content-Type', 'application/x-www-form-urlencoded');
+    
+    // 5. 削除後のデータベース状態をAPI経由で確認
+    const apiRes = await request(app).get('/api/todos');
+    const orphanedTask = apiRes.body.todos.find(t => t.task === 'バグ検証タスク');
+    
+    // ここでバグが判明: タスクのcategory_idが削除されたカテゴリIDのままになっている
+    if (orphanedTask && orphanedTask.category_id === catId) {
+      console.log('🚨 BUG DETECTED: タスクのcategory_idが削除されたカテゴリIDのままです');
+      console.log(`   タスク: ${orphanedTask.task}`);
+      console.log(`   category_id: ${orphanedTask.category_id} (削除済みカテゴリ)`);
+      
+      // このタスクは画面に表示されない可能性が高い
+      res = await request(app).get('/');
+      const isTaskVisible = res.text.includes('バグ検証タスク');
+      
+      if (!isTaskVisible) {
+        console.log('🚨 CONFIRMED: タスクが画面に表示されていません');
+      }
+      
+      // テストを失敗させて問題を明確にする
+      expect(orphanedTask.category_id).toBeNull(); // これは失敗するはず
+    }
+  });
+
+  it('【期待動作】カテゴリ削除時はタスクのcategory_idがNULLに更新されるべき', async () => {
+    // この動作が正しい実装です
+    
+    // 1. カテゴリ作成
+    await request(app)
+      .post('/categories/add')
+      .send('name=正しい削除テストカテゴリ')
+      .set('Content-Type', 'application/x-www-form-urlencoded');
+    
+    let res = await request(app).get('/categories');
+    const match = res.text.match(/\/categories\/edit\/(\d+)/);
+    const catId = parseInt(match[1]);
+    
+    // 2. タスク追加
+    await request(app)
+      .post('/add')
+      .send(`task=正しい削除テストタスク&category_id=${catId}`)
+      .set('Content-Type', 'application/x-www-form-urlencoded');
+    
+    // 3. カテゴリ削除
+    await request(app)
+      .post(`/categories/delete/${catId}`)
+      .set('Content-Type', 'application/x-www-form-urlencoded');
+    
+    // 4. 期待される動作: タスクのcategory_idがNULLになり、未設定カテゴリに表示される
+    const apiRes = await request(app).get('/api/todos');
+    const taskAfterDeletion = apiRes.body.todos.find(t => t.task === '正しい削除テストタスク');
+    
+    expect(taskAfterDeletion).toBeTruthy();
+    expect(taskAfterDeletion.category_id).toBeNull(); // これが期待される動作
+    
+    // 5. 画面でも未設定カテゴリ部分に表示される
+    res = await request(app).get('/');
+    expect(res.text).toContain('正しい削除テストタスク');
+    
+    const uncategorizedSection = res.text.split('category-block')[1];
+    expect(uncategorizedSection).toContain('正しい削除テストタスク');
+  });
 });
