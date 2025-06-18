@@ -90,3 +90,66 @@ router.post('/edit/:id', (req, res) => {
 });
 
 module.exports = router;
+
+// API エンドポイント（JSON形式）
+// タスク一覧取得API
+router.get('/api/todos', (req, res) => {
+  const sql = `
+    SELECT t.* FROM todos t
+    LEFT JOIN categories c ON t.category_id = c.id
+    ORDER BY
+      c.name IS NULL, c.name ASC,
+      t.due_date IS NOT NULL, t.due_date ASC,
+      t.created_at ASC
+  `;
+  db.all(sql, (err, todos) => {
+    if (err) return res.status(500).json({ error: 'DB error' });
+    db.all('SELECT * FROM categories', (err, categories) => {
+      if (err) return res.status(500).json({ error: 'DB error' });
+      res.json({ todos, categories });
+    });
+  });
+});
+
+// タスク追加API
+router.post('/api/add', (req, res) => {
+  const { task, due_date, due_datetime, category_id } = req.body;
+  if (!task) return res.status(400).json({ error: 'タスク名が必要です' });
+  let due = due_datetime || due_date || null;
+  if (due && due.includes('T')) due = due.replace('T', ' ');
+  if (due) {
+    const dateRe = /^\d{4}-\d{2}-\d{2}$/;
+    const datetimeRe = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+    if (!(dateRe.test(due) || datetimeRe.test(due))) {
+      return res.status(400).json({ error: '日付形式が不正です' });
+    }
+  }
+  const created_at = new Date().toISOString().replace('T', ' ').slice(0, 19);
+  db.run('INSERT INTO todos (task, due_date, category_id, created_at) VALUES (?, ?, ?, ?)', [task, due, category_id || null, created_at], function(err) {
+    if (err) return res.status(500).json({ error: 'DB error' });
+    res.json({ success: true, id: this.lastID });
+  });
+});
+
+// タスク完了/未完了API
+router.post('/api/done/:id', (req, res) => {
+  db.run('UPDATE todos SET done = 1 WHERE id = ?', [req.params.id], err => {
+    if (err) return res.status(500).json({ error: 'DB error' });
+    res.json({ success: true });
+  });
+});
+
+router.post('/api/undone/:id', (req, res) => {
+  db.run('UPDATE todos SET done = 0 WHERE id = ?', [req.params.id], err => {
+    if (err) return res.status(500).json({ error: 'DB error' });
+    res.json({ success: true });
+  });
+});
+
+// タスク削除API
+router.post('/api/delete/:id', (req, res) => {
+  db.run('DELETE FROM todos WHERE id = ?', [req.params.id], err => {
+    if (err) return res.status(500).json({ error: 'DB error' });
+    res.json({ success: true });
+  });
+});
